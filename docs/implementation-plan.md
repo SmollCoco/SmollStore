@@ -45,68 +45,181 @@ SmollStore is a book tracker application built with Nuxt 3 and Firebase. It allo
 3. **Page Structure**
    - `pages/index.vue`: Homepage with search functionality
    - `pages/library.vue`: User's saved books page
+   - `pages/auth.vue`: User authentication page
+   - `pages/profile.vue`: User profile management page
 
 ### Phase 3: Firebase Integration
 
 1. **Authentication**
-   - Implement anonymous sign-in functionality
-   - Create composable for authentication state (`useAuth.js`)
-   - Ensure user persistence across page refreshes
+   - Implement multi-mode authentication functionality:
+     - Anonymous sign-in (default)
+     - Email/password sign-up and sign-in
+     - Link anonymous accounts to permanent accounts
+   - Create comprehensive authentication composable (`useAuth.js`):
+     - Configure auth state change listeners with `onAuthStateChanged`
+     - Implement persistence with `setPersistence` and `browserLocalPersistence`
+     - Handle authentication errors with detailed error messages
+     - Track authentication states (loading, initialized, mode)
+   - User management functionality:
+     - Sign out capability
+     - Profile updates with `updateProfile`
+     - Computed properties for auth state (`isAnonymous`, etc.)
 
 2. **Firestore Data Management**
-   - Create composable for library operations (`useLibrary.js`)
-   - Implement functions to:
-     - Save books to `users/{uid}/library` collection
-     - Fetch user's saved books
-     - Delete books from library
-   - Add error handling for database operations
+   - Create robust library operations composable (`useLibrary.js`):
+     - Implement real-time data syncing with Firestore `onSnapshot`
+     - Proper collection schema design using `books` collection with `userId` field
+     - Comprehensive book data model with metadata fields
+   - Implement core CRUD functions without requiring indexes:
+     - Use simple queries with client-side filtering to avoid composite indexes
+     - Client-side sorting of results to avoid Firestore orderBy index requirements
+     - Save books with in-memory duplicate detection
+     - Fetch books with efficient memory management
+     - Update book details (notes, status, rating)
+     - Delete books from library with proper state updates
+   - Advanced features:
+     - Calculate statistics (category counts)
+     - Check if books exist in library using client-side filtering
+     - Find books by Google Books ID
+   - Robust error handling:
+     - Centralized error handling mechanism
+     - Integration with notification system
+     - Proper cleanup of Firestore listeners
 
 ### Phase 4: Google Books API Integration
 
 1. **API Service**
-   - Create composable for Google Books API calls (`useBookSearch.js`)
-   - Implement search functionality with proper error handling
-   - Cache search results to minimize API calls
+   - Create comprehensive composable for Google Books API calls (`useBookSearch.js`):
+     - Implement efficient search functionality with query parameter handling
+     - Develop robust error handling with specific error messages
+     - Build intelligent caching system to minimize API calls:
+       - Store results in a query-indexed cache object
+       - Implement cache size management to prevent memory issues
+       - Clear older cache entries automatically
+   - Handle various API response scenarios:
+     - Empty results
+     - Malformed data
+     - Rate limiting and network failures
 
-2. **Search Results Handler**
-   - Display search results in a grid layout
-   - Implement pagination if API returns many results
-   - Add filtering options (by title, author, etc.)
+2. **Search Results Processing**
+   - Standardize book data model across the application:
+     - Extract and normalize essential book metadata
+     - Handle missing fields with appropriate defaults
+     - Include extended metadata (categories, language, page count, etc.)
+   - Implement search state management:
+     - Track loading states for better UX
+     - Maintain search history
+     - Support search reset functionality
+
+3. **User Interface Integration**
+   - Display search results in a responsive grid layout
+   - Implement UI components for search experience:
+     - Loading indicators during API calls
+     - Empty state handling for no results
+     - Error messaging for failed searches
+   - Create seamless integration between search and library:
+     - Show library status on search results
+     - Enable quick actions for adding/removing books
 
 ### Phase 5: User Experience and Polish
 
-1. **Responsive Design**
-   - Ensure mobile-friendly layout
-   - Test on different screen sizes
+1. **Responsive Design Enhancement**
+   - Implement fully responsive layouts using Bootstrap grid system:
+     - Mobile-first approach with appropriate breakpoints
+     - Optimize card layouts for various screen sizes
+     - Ensure touch-friendly UI elements on mobile devices
+   - Test thoroughly across device spectrum:
+     - Mobile phones (iOS and Android viewports)
+     - Tablets (portrait and landscape)
+     - Desktop and large displays
 
-2. **User Feedback**
-   - Implement toast notifications for actions:
-     - Book saved successfully
-     - Book removed from library
-     - Search errors
-     - Authentication status
+2. **Comprehensive Feedback System**
+   - Develop centralized notification system (`Notification.vue` component):
+     - Configure different notification types (success, error, info, warning)
+     - Implement auto-dismissing with configurable durations
+     - Ensure accessibility compliance (ARIA attributes, keyboard focus)
+   - Integrate notifications with all user actions:
+     - Authentication flows (login, logout, registration)
+     - Library operations (add, remove, update books)
+     - Search operations (errors, empty results)
+     - System status changes (offline mode, connection issues)
 
-3. **Loading States**
-   - Add loading indicators for API calls and database operations
-   - Implement skeleton loaders for better UX
+3. **Loading States and Progressive Feedback**
+   - Create consistent loading patterns:
+     - Implement reusable `LoadingSpinner.vue` component
+     - Add skeleton loaders for content-heavy areas (book cards, library)
+     - Use progress indicators for longer operations
+   - Optimize perceived performance:
+     - Show immediate feedback before async operations complete
+     - Implement optimistic UI updates for database operations
+     - Pre-load critical resources
 
-4. **Error Handling**
-   - Create comprehensive error states for:
-     - API failures
-     - Database operations
-     - Network issues
+4. **Comprehensive Error Handling**
+   - Develop layered error handling strategy:
+     - User-facing error messages with clear recovery actions
+     - Developer-friendly console errors with detailed information
+     - Automatic recovery mechanisms where possible
+   - Handle specific error scenarios:
+     - API rate limiting and service unavailability
+     - Firebase connection issues and permissions
+     - Network status changes (online/offline detection)
+     - Data validation failures and edge cases
 
 ### Phase 6: Testing and Deployment
 
-1. **Testing**
-   - Test all features manually
-   - Ensure responsive design works on all devices
-   - Check for edge cases (no search results, API failures)
+1. **Comprehensive Testing Strategy**
+   - Implement multi-phase testing approach:
+     - Functionality testing of all features (search, save, delete, auth flows)
+     - Cross-browser compatibility testing (Chrome, Firefox, Safari, Edge)
+     - Responsive design testing across device spectrum
+     - Offline capability testing with service worker
+   - Edge case validation:
+     - Empty states (no search results, empty library)
+     - Error states (API failures, network issues)
+     - Authentication edge cases (session expiry, token refresh)
+     - Performance under load (large libraries, many search results)
 
-2. **Deployment**
-   - Configure Firebase hosting
-   - Deploy the application
-   - Set up proper security rules for Firestore
+2. **Security and Data Integrity**
+   - Implement Firebase security rules:
+     - Secure Firestore with proper document-level access control
+     - Prevent unauthorized access to user data
+     - Rate limiting for sensitive operations
+     - Keep rules simple to avoid requiring indexes
+   - Data validation:
+     - Server-side validation in Firestore rules
+     - Client-side validation before submissions
+     - Sanitization of user inputs
+   - Query optimization:
+     - Use simple queries to avoid composite indexes
+     - Perform complex filtering and sorting on the client side
+     - Minimize database reads with efficient data structures
+
+3. **Performance Optimization**
+   - Implement code splitting and lazy loading:
+     - Route-based code splitting with Nuxt
+     - Component lazy loading for non-critical UI elements
+   - Asset optimization:
+     - Image compression and responsive images
+     - Bundle size optimization with tree shaking
+     - CSS optimizations
+   - Caching strategy:
+     - Implement service worker for offline capabilities
+     - Configure proper cache headers
+     - Use localStorage for appropriate user preferences
+
+4. **Deployment and CI/CD**
+   - Configure Firebase hosting:
+     - Set up proper redirects and rewrites
+     - Configure custom domain if needed
+     - Enable HTTPS and security headers
+   - Implement deployment pipeline:
+     - Automatic builds on code commits
+     - Environment-specific configurations (dev/prod)
+     - Rollback capabilities
+   - Post-deployment monitoring:
+     - Error tracking with Firebase Crashlytics
+     - Performance monitoring
+     - User analytics integration
 
 ## Detailed Component Structure
 
@@ -393,9 +506,41 @@ export const useLibrary = () => {
 ## Timeline Estimation
 - Phase 1 (Project Setup): 1 day
 - Phase 2 (UI Components): 2-3 days
-- Phase 3 (Firebase Integration): 1-2 days
-- Phase 4 (Google Books API): 1-2 days
-- Phase 5 (UX Polish): 1-2 days
-- Phase 6 (Testing & Deployment): 1 day
+- Phase 3 (Firebase Integration): 2-3 days
+- Phase 4 (Google Books API): 2 days
+- Phase 5 (UX Polish): 2-3 days
+- Phase 6 (Testing & Deployment): 2 days
 
-Total estimated time: 7-11 days
+Total estimated time: 11-14 days
+
+## Technical Considerations
+
+1. **Firebase Configuration**
+   - Ensure Firebase project is properly configured with Firestore and Authentication enabled
+   - Set up appropriate security rules for Firestore collections
+   - Configure Authentication providers (anonymous, email/password)
+   - Design database queries to avoid requiring composite indexes:
+     - Use simple `where` queries with a single field
+     - Perform complex filtering, sorting, and searches client-side
+     - Structure collections to minimize the need for complex queries
+
+2. **API Key Management**
+   - Store API keys in environment variables (.env files)
+   - Set up proper restrictions on Google Books API key
+   - Configure Firebase security rules appropriately
+
+3. **Performance Optimization**
+   - Implement lazy loading for components
+   - Use pagination or infinite scrolling for large result sets
+   - Optimize image loading with responsive images
+
+4. **Offline Capabilities**
+   - Consider implementing PWA features for offline access
+   - Cache critical data and assets
+   - Provide graceful degradation when offline
+
+5. **Future Enhancements**
+   - Social features (sharing books, recommendations)
+   - Reading progress tracking
+   - Integration with additional book APIs
+   - Mobile app conversion with capacitor/cordova

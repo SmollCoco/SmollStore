@@ -30,9 +30,10 @@
 #### 5. **Firestore Functionality**
 
 * Save books to:
-  * Collection: `users/{uid}/library`
-  * Fields: `title`, `authors`, `thumbnail`, `description`
-* Read saved books from Firestore
+  * Collection: `books` with `userId` field for ownership
+  * Fields: `title`, `authors`, `thumbnail`, `description`, `googleBooksId`, `userId`, `addedAt`, etc.
+* Read saved books from Firestore with real-time updates
+* Update book notes, status, and ratings
 * Delete books from the saved list
 
 #### 6. **Pages & Components**

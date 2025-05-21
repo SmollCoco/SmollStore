@@ -1,23 +1,22 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { useRuntimeConfig } from "#app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+const runtimeConfig = useRuntimeConfig();
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAgm0DGuC1X8L0j1Z7LElHgfLynlgQaAE4",
-  authDomain: "smollstore.firebaseapp.com",
-  projectId: "smollstore",
-  storageBucket: "smollstore.firebasestorage.app",
-  messagingSenderId: "656049445204",
-  appId: "1:656049445204:web:85595f1966f77246e3d0c1"
+  apiKey: runtimeConfig.public.firebaseApiKey,
+  authDomain: runtimeConfig.public.firebaseAuthDomain,
+  projectId: runtimeConfig.public.firebaseProjectId,
+  storageBucket: runtimeConfig.public.firebaseStorageBucket,
+  messagingSenderId: runtimeConfig.public.firebaseMessagingSenderId,
+  appId: runtimeConfig.public.firebaseAppId
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-export { db, auth };
+// Remove all top-level Firebase initialization from this file.
+// Instead, use the injected $db and $auth from Nuxt plugin in your composables/components.
+// Example usage in a composable:
+// const db = useNuxtApp().$db;
+// const auth = useNuxtApp().$auth;

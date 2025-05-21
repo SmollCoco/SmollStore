@@ -1,0 +1,15 @@
+@use "@/assets/css/main.css";
+
+.placeholder-cover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--warm-cream);
+  color: var(--soft-navy-light);
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+}
